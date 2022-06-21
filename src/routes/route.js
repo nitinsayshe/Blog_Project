@@ -11,6 +11,8 @@ router.post("/blogs",blogController.blogs)
 
 router.get("/blogs",blogController.getBlogs)
 
+router.put("/blogs/:blogId",blogController.updateBlogs)
+
 
 
 

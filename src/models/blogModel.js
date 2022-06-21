@@ -4,28 +4,29 @@ const ObjectId = mongoose.Schema.Types.ObjectId
 const blogSchema = new mongoose.Schema({
     title: {
         type: String,
-        require: true
+        required: true
     },
     body: {
         type: String,
-        require: true
+        required: true
     },
     authorId: {
         type: ObjectId,
         ref: "Author",
-        require: true
+        required: true
     },
     tags: { type: [String] },
     category: {
         type: [String],
-        require: true,
+        required: true,
     },
     subcategory: { type: [String] },
     isDeleted: {
         type: Boolean,
         default: false
     },
-    isPublished: { type: Boolean, default: false }
+    isPublished: { type: Boolean, default: false },
+    publishedAt: {type:Date}
 }, { timestamps: true });
 
 module.exports = mongoose.model('Blog', blogSchema)

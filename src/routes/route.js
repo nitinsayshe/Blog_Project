@@ -9,6 +9,9 @@ router.post("/authors",authorController.authors)
 
 router.post("/blogs",blogController.blogs)
 
+router.get("/blogs",blogController.getBlogs)
+
+
 
 
 

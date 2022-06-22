@@ -43,6 +43,7 @@ const createAuthors = async function (req, res) {
         //load the data in database
         let data = await authorModel.create(authorsData)
         return res.status(201).send({ status: true, data: data })
+        
     } catch (error) {
         return res.status(500).send({ status: false, msg: error.message })
     }

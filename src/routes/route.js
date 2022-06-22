@@ -4,10 +4,11 @@ const authorController =require("../controller/authorController")
 const blogController =require("../controller/blogController")
 
 
+// Api to Create Author
+router.post("/authors",authorController.createAuthors)
 
-router.post("/authors",authorController.authors)
-
-router.post("/blogs",blogController.blogs)
+//Api to Create Blogs
+router.post("/blogs",blogController.createBlogs)
 
 router.get("/blogs",blogController.getBlogs)
 

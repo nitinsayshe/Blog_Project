@@ -1,7 +1,8 @@
 const authorModel = require("../models/authorModel")
+var validator = require("email-validator");
 
 
-const authors = async function (req, res) {
+const createAuthors = async function (req, res) {
     try {
         let authorsData = req.body;
         console.log(authorsData)
@@ -20,14 +21,23 @@ const authors = async function (req, res) {
 
         //check the title is valid or not ?
         console.log(req.body.title)
-        if(req.body.title in ["Mr", "Mrs", "Miss"]){
+        if(!(["Mr", "Mrs", "Miss"].includes(req.body.title))){
             return res.status(400).send({ status: false, msg: "Title Not Matched" });
         }
 
-        //check the email is unique and valid
+        //check if email id is valid or not ?  --->used "email-validator"
+        if(!(validator.validate(req.body.email))){
+            return res.status(400).send({ status: false, msg: "Email Id is Invalid" });
+        }
+        //check the email is unique 
         let emailFlag = await authorModel.findOne({ email: req.body.email })
         if (emailFlag) {
             return res.status(400).send({ status: false, msg: "E-mail is Already Present in DB" })
+        }
+
+        //check if password is present or not
+        if(!req.body.password){
+            return res.status(400).send({ status: false, msg: "PassWord is Required" });
         }
 
         //load the data in database
@@ -43,4 +53,4 @@ const authors = async function (req, res) {
 
 
 
-module.exports.authors = authors
+module.exports.createAuthors = createAuthors

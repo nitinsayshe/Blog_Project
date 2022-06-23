@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 //authentication
-exports.autnontication = function (req, res, next) {
+exports.authentication = function (req, res, next) {
     //check the token in request header
     //validate this token
     let token = req.headers["x-Auth-token"];
@@ -13,7 +13,7 @@ exports.autnontication = function (req, res, next) {
      next()
 };
     exports.authorization=function (req, res, next) {
-    let decodedToken = jwt.verify(token, "functionup-radon");
+    let decodedToken = jwt.verify(token, "MSgroup-3");
     if (!decodedToken)
         return res.send({ status: false, msg: "token is invalid" });
         

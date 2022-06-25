@@ -8,7 +8,7 @@ function check(t) {
     if (t) {
         
         if (!Array.isArray(t)) {
-            t = t.toString().split(" ")
+            t = t.toString().split(" ")f
         }
         for (i of t) {
             if (!regEx.test(i)) {

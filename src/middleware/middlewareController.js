@@ -15,20 +15,11 @@ exports.authentication = async function (req, res, next) {
         // let decodedToken;
         //it verify the token
         try {
-<<<<<<< HEAD
-         let    decodedToken =  jwt.verify(token, "MSgroup-3");
-        }  catch (err) {
-            return res.status(400).send({ status: false, msg:err.message + " Please enter valid token in header body" })}
-        
-    
-        next() 
-=======
             decodedToken = jwt.verify(token, "MSgroup-3");
         } catch (err) {
             return res.status(400).send({ status: false, msg: err.message + " Please enter valid token in header body" })
         }
         next()
->>>>>>> b8136723289631c3aa99b4d33770b2d867f171f6
     } catch (err) {
         return res.status(500).send({ status: false, msg: err.message })
     }
@@ -71,7 +62,7 @@ exports.authorization = async function (req, res, next) {
             let blogId = req.params.blogId
             //check the author Id is Valid or Not ?
             if (!ObjectId.isValid(blogId)) {
-                return res.status(400).send({ status: false, msg: "Blog Id is Invalid" });
+                return res.status(400).send({ status: false, msg: "Blog Id in url: is Invalid" });
             }
             let authIdData = await blogModel.findById(blogId).select("authorId")
     

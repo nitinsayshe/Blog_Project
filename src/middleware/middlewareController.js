@@ -12,7 +12,7 @@ exports.authentication = async function (req, res, next) {
         console.log(token)
         //If no token is present in the request header ,return error
         if (!token) return res.status(400).send({ status: false, msg: "token must be present" });
-        let decodedToken;
+        // let decodedToken;
         //it verify the token
         try {
             decodedToken = jwt.verify(token, "MSgroup-3");
@@ -62,7 +62,7 @@ exports.authorization = async function (req, res, next) {
             let blogId = req.params.blogId
             //check the author Id is Valid or Not ?
             if (!ObjectId.isValid(blogId)) {
-                return res.status(400).send({ status: false, msg: "Blog Id is Invalid" });
+                return res.status(400).send({ status: false, msg: "Blog Id in url: is Invalid" });
             }
             let authIdData = await blogModel.findById(blogId).select("authorId")
     

@@ -6,7 +6,7 @@ const ObjectId = require('mongoose').Types.ObjectId;
 function check(t) {
     var regEx = /^[a-zA-Z]+/;
     if (t) {
-        
+
         if (!Array.isArray(t)) {
             t = t.toString().split(" ")f
         }
@@ -62,7 +62,6 @@ exports.createBlogs = async function (req, res) {
         // in this blog of code we are checking that subcategory should be valid, u can't use empty space as subcategory
         if (check(subcategory)) return res.status(400).send({ status: false, msg: "subcategory text is invalid" });
 
-
         //check if Category is present or not ?
         if (!category) {
             return res.status(400).send({ status: false, msg: "Please Enter the Category of Blog" });
@@ -93,7 +92,6 @@ exports.createBlogs = async function (req, res) {
     } catch (error) {
         return res.status(500).send({ status: false, msg: error.message })
     }
-
 }
 
 exports.getBlogs = async function (req, res) {
@@ -137,12 +135,6 @@ exports.updateBlogs = async function (req, res) {
         let blogId = req.params.blogId
         let data = req.body;
         let { title, body, authorId, tags, category, subcategory, isDeleted, deletedAt, isPublished, publishedAt } = req.body;
-
-
-        //check Id is Present Or Not in req.body
-        // if (!blogId) {
-        //     return res.status(400).send({ status: false, msg: "Id is Not Present" });
-        // }
 
         //check the author Id is Valid or Not ?
         if (!ObjectId.isValid(blogId)) {
@@ -220,16 +212,7 @@ exports.deletedBlog = async function (req, res) {
     try {
         let blogId = req.params.blogId;
 
-        //check the author Id is Valid or Not ?
-        if (!ObjectId.isValid(blogId)) {
-            return res.status(400).send({ status: false, msg: "Id is Invalid" });
-        }
-
         let blog = await blogModel.findById(blogId);
-        //check if blog is present or not ?
-        if (!blog) {
-            return res.status(404).send({ status: false, msg: "No such user exists" });
-        }
 
         //check if isDeleated Status is True
         if (blog.isDeleted) {
@@ -237,7 +220,7 @@ exports.deletedBlog = async function (req, res) {
         }
         //update the status of isDeleted to TRUE
         let updatedData = await blogModel.findOneAndUpdate({ _id: blogId }, { isDeleted: true }, { new: true });
-        return res.status(200).send({ status: true, data: updatedData });
+        return res.status(200).send({ status: true, msg: "successfuly Deleted" });
 
     } catch (error) {
         return res.status(500).send({ status: false, msg: error.message })
@@ -251,15 +234,8 @@ exports.deleteBlogWithQuery = async function (req, res) {
         let { tags, category, subcategory, authorId, isPublished, ...rest } = req.query;
 
         //check if unwanted query is passed
-        if (rest.length >= 0) {
-            return res.status(400).send({ status: false, msg: "BAD REQUEST" })
-        }
-
-        //check the author Id is Valid or Not ?
-        if (authorId in req.query) {
-            if (!ObjectId.isValid(authorId)) {
-                return res.status(400).send({ status: false, msg: "Id is Invalid" });
-            }
+        if (Object.keys(rest).length > 0) {
+            return res.status(400).send({ status: false, msg: " please provide valide filter key for ex. tags, category, subcategory, authorId, isPublished only" })
         }
 
         req.query.isDeleted = false
@@ -276,8 +252,6 @@ exports.deleteBlogWithQuery = async function (req, res) {
         // x will contain all the blogid's having isDeleated :False related to passed author id
         let isDeletedFalseId = blog.map((data) => data._id.toString())
 
-
-
         let updatedData = [];  // vatiable for storing the updated data
 
         //loop for updating the data based on blog id
@@ -286,9 +260,6 @@ exports.deleteBlogWithQuery = async function (req, res) {
                 { isDeleted: true, deletedAt: new Date() }, { new: true });
             updatedData.push(x)
         }
-
-        //update the status of isDeleted to TRUE
-        //let updatedData = await blogModel.updateMany(req.query, { isDeleted: true, deletedAt: new Date() }, { new: true });
 
         return res.status(200).send({ status: true, data: updatedData });
     } catch (error) {

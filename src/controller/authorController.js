@@ -7,6 +7,8 @@ exports.createAuthors = async function (req, res) {
     try {
         let authorsData = req.body;
         let { fname, lname, title, email, password, ...rest } = req.body
+    
+
 
         //check if the data in request body is present or not ?
         if (!Object.keys(authorsData).length) {

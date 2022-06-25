@@ -5,8 +5,6 @@ const blogController =require("../controller/blogController")
 const mw =require("../middleware/middlewareController")
 
 
-
-
 // Api to Create Author.
 router.post("/authors",authorController.createAuthors) // testing done
 

@@ -1,26 +1,22 @@
 const blogModel = require("../models/blogModel")
 const authorModel = require("../models/authorModel")
-const mongoose = require('mongoose');
 const ObjectId = require('mongoose').Types.ObjectId;
 
+//function to check if tag and sub-catogery string is valid or not ?
 function check(t) {
     var regEx = /^[a-zA-Z]+/;
     if (t) {
+        
         if (!Array.isArray(t)) {
-            t = t.split(" ")
-
+            t = t.toString().split(" ")
         }
         for (i of t) {
             if (!regEx.test(i)) {
                 return true
             }
-
         }
-
     }
-
 }
-
 
 exports.createBlogs = async function (req, res) {
     try {
@@ -35,9 +31,7 @@ exports.createBlogs = async function (req, res) {
         if (!title) {
             return res.status(400).send({ status: false, msg: "Please Enter the Title" });
         }
-
         var regEx = /^[a-zA-Z]+/;
-
         // check it is valid title or not? (using regular expression)
         if (!regEx.test(title)) {
             return res.status(400).send({ status: false, msg: "title text is invalid" });
@@ -54,12 +48,10 @@ exports.createBlogs = async function (req, res) {
         if (!authorId) {
             return res.status(400).send({ status: false, msg: "Id is Not Present" });
         }
-
         //check the author Id is Valid or Not ?
         if (!ObjectId.isValid(authorId)) {
             return res.status(400).send({ status: false, msg: "Id is Invalid" });
         }
-
         //check if id is present in Db or Not ? 
         let user = await authorModel.findById(authorId)
         if (!user) return res.status(404).send({ status: false, msg: "This Id is not present in Author DB" })
@@ -75,23 +67,18 @@ exports.createBlogs = async function (req, res) {
         if (!category) {
             return res.status(400).send({ status: false, msg: "Please Enter the Category of Blog" });
         }
-
         // check it is valid category or not? (using regular expression)
         if (!regEx.test(category)) {
             return res.status(400).send({ status: false, msg: "category text is invalid" });
         }
-
         //check if isDeleted is TRUE/FALSE ?
-
         if (isDeleted && (!(typeof isDeleted === "boolean"))) {
             return res.status(400).send({ status: false, msg: "isDeleted Must be TRUE OR FALSE" });
         }
-
         // if isDeleted is true add the current Time&Date in deletedAt?
         if (isDeleted) {
             blogsData.deletedAt = new Date()
         }
-
         //check if isPublished is TRUE/FALSE ?
         if (isPublished && (!(typeof isPublished === "boolean"))) {
             return res.status(400).send({ status: false, msg: "isPublished Must be TRUE OR FALSE" });
@@ -100,8 +87,7 @@ exports.createBlogs = async function (req, res) {
         if (isPublished) {
             blogsData.publishedAt = new Date()
         }
-
-        //add the data in DB
+        //add the data in DB if all validation passed
         let data = await blogModel.create(blogsData)
         return res.status(201).send({ status: true, data: data })
     } catch (error) {
@@ -112,9 +98,9 @@ exports.createBlogs = async function (req, res) {
 
 exports.getBlogs = async function (req, res) {
     try {
-
         let { tags, category, subcategory, authorId, ...rest } = req.query;
         console.log(rest)
+
         if (Object.keys(rest).length > 0) {
             return res.status(400).send({ status: false, msg: " please provide valide filter key for ex. tags, category, subcategory, authorId. only" })
         }
@@ -162,13 +148,10 @@ exports.updateBlogs = async function (req, res) {
         if (!ObjectId.isValid(blogId)) {
             return res.status(400).send({ status: false, msg: "Id is Invalid" });
         }
-
         //check if isDeleted is TRUE/FALSE ?
-
         if (isDeleted && (!(typeof isDeleted === "boolean"))) {
             return res.status(400).send({ status: false, msg: "isDeleted Must be TRUE OR FALSE" });
         }
-
         //check if id is present in Db or Not ? 
         let blog = await blogModel.findById(blogId)
         if (!blog) return res.status(404).send({ status: false, msg: "id is not present in DB" })
@@ -176,24 +159,20 @@ exports.updateBlogs = async function (req, res) {
         //check if isDeleated Status is True
         if (blog.isDeleted) return res.status(404).send({ status: false, msg: "Blog is Already Deleted" })
 
-
         //check if body is empty or not ?
         if (!Object.keys(data).length) {
             return res.status(400).send({ status: false, msg: "Noting to Update in Request from Body" });
         }
 
         var regEx = /^[a-zA-Z]+/;
-
         // check it is valid title or not? (using regular expression)
         if (!regEx.test(title)) {
             return res.status(400).send({ status: false, msg: "title text is invalid" });
         }
-
         // check it is valid body or not? (using regular expression)
         if (!regEx.test(body)) {
             return res.status(400).send({ status: false, msg: "body text is invalid" });
         }
-
         // in this blog of code we are checking that tags should be valid, u can't use empty space as tags
         if (check(tags)) return res.status(400).send({ status: false, msg: "tags text is invalid" });
 
@@ -229,11 +208,9 @@ exports.updateBlogs = async function (req, res) {
             data.publishedAt = new Date()
         }
 
-
         let updateDate = await blogModel.findByIdAndUpdate(blogId, data, { new: true })
         return res.status(200).send({ status: true, data: updateDate });
     }
-
     catch (error) {
         return res.status(500).send({ status: false, msg: error.message })
     }
@@ -266,6 +243,7 @@ exports.deletedBlog = async function (req, res) {
         return res.status(500).send({ status: false, msg: error.message })
     }
 };
+
 
 exports.deleteBlogWithQuery = async function (req, res) {
     try {
@@ -312,9 +290,7 @@ exports.deleteBlogWithQuery = async function (req, res) {
         //update the status of isDeleted to TRUE
         //let updatedData = await blogModel.updateMany(req.query, { isDeleted: true, deletedAt: new Date() }, { new: true });
 
-
         return res.status(200).send({ status: true, data: updatedData });
-
     } catch (error) {
         return res.status(500).send({ status: false, msg: error.message })
     }

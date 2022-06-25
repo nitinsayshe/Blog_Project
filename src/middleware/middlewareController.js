@@ -11,14 +11,14 @@ exports.authentication = async function (req, res, next) {
         console.log(token)
         //If no token is present in the request header ,return error
         if (!token) return res.status(400).send({ status: false, msg: "token must be present" });
-        let decodedToken;
+        // let decodedToken;
         //it verify the token
         try {
-             decodedToken = await jwt.verify(token, "MSgroup-3");
+         let    decodedToken =  jwt.verify(token, "MSgroup-3");
         }  catch (err) {
             return res.status(400).send({ status: false, msg:err.message + " Please enter valid token in header body" })}
         
-       
+    
         next() 
     } catch (err) {
         return res.status(500).send({ status: false, msg: err.message })

@@ -8,7 +8,7 @@ function check(t) {
     if (t) {
 
         if (!Array.isArray(t)) {
-            t = t.toString().split(" ")f
+            t = t.toString().split(" ")
         }
         for (i of t) {
             if (!regEx.test(i)) {
@@ -104,6 +104,11 @@ exports.getBlogs = async function (req, res) {
         }
         //check if any quer parm is present ?
         if (Object.keys(req.query).length !== 0) {
+
+            //check if id inquery is valid or not
+            if(!ObjectId.isValid(authorId)){
+                return res.status(400).send({status:false,msg:"invalid authorId in query params"})
+            }
 
             //add the keyisDeleted &isPublished in req.query
             req.query.isDeleted = false

@@ -51,7 +51,7 @@ authorLogin = async function (req, res) {
             },
             "MSgroup-3"
         );
-        res.setHeader("x-auth-token", token);
+        res.setHeader("x-api-key", token);
         res.status(201).send({ status: true, data: token });
 
     } catch (err) {

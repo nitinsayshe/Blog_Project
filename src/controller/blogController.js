@@ -6,13 +6,12 @@ const ObjectId = require('mongoose').Types.ObjectId;
 function check(t) {
     var regEx = /^[a-zA-Z]+/;
     if (t) {
-
         if (!Array.isArray(t)) {
-            t = t.toString().split(" ")
-        }
-        for (i of t) {
-            if (!regEx.test(i)) {
-                return true
+            t = t.toString().split(" ") ///"1 " ["1"," "]
+            for (i of t) {
+                if (!regEx.test(i)) {
+                    return true
+                }
             }
         }
     }
@@ -31,18 +30,9 @@ exports.createBlogs = async function (req, res) {
         if (!title) {
             return res.status(400).send({ status: false, msg: "Please Enter the Title" });
         }
-        var regEx = /^[a-zA-Z]+/;
-        // check it is valid title or not? (using regular expression)
-        if (!regEx.test(title)) {
-            return res.status(400).send({ status: false, msg: "title text is invalid" });
-        }
         //check Body is Present or Not ?
         if (!body) {
             return res.status(400).send({ status: false, msg: "Please Enter the Body of Blog" });
-        }
-        // check it is valid body or not? (using regular expression)
-        if (!regEx.test(body)) {
-            return res.status(400).send({ status: false, msg: "body text is invalid" });
         }
         //check Id is Present Or Not in req.body
         if (!authorId) {
@@ -52,40 +42,51 @@ exports.createBlogs = async function (req, res) {
         if (!ObjectId.isValid(authorId)) {
             return res.status(400).send({ status: false, msg: "Id is Invalid" });
         }
-        //check if id is present in Db or Not ? 
-        let user = await authorModel.findById(authorId)
-        if (!user) return res.status(404).send({ status: false, msg: "This Id is not present in Author DB" })
+        //check if Category is present or not ?
+        if (!category) {
+            return res.status(400).send({ status: false, msg: "Please Enter the Category of Blog" });
+        }
+        //check if isDeleted is TRUE/FALSE ?
+        if (isDeleted && (!(typeof isDeleted === "boolean"))) {
+            return res.status(400).send({ status: false, msg: "isDeleted Must be TRUE OR FALSE" });
+        }
+        //check if isPublished is TRUE/FALSE ?
+        if (isPublished && (!(typeof isPublished === "boolean"))) {
+            return res.status(400).send({ status: false, msg: "isPublished Must be TRUE OR FALSE" });
+        }
 
+        var regEx = /^[a-zA-Z]+/;
+        // check it is valid title or not? (using regular expression)
+        if (!regEx.test(title)) {
+            return res.status(400).send({ status: false, msg: "title text is invalid" });
+        }
+        // check it is valid body or not? (using regular expression)
+        if (!regEx.test(body)) {
+            return res.status(400).send({ status: false, msg: "body text is invalid" });
+        }
+        // check it is valid category or not? (using regular expression)
+        if (!regEx.test(category)) {
+            return res.status(400).send({ status: false, msg: "category text is invalid" });
+        }
+        // if isDeleted is true add the current Time&Date in deletedAt?
+        if (isDeleted) {
+            blogsData.deletedAt = new Date()
+        }
+
+        // if isPublised is true add the current Time&Date in publishedAt?
+        if (isPublished) {
+            blogsData.publishedAt = new Date()
+        }
         // in this blog of code we are checking that tags should be valid, u can't use empty space as tags
         if (check(tags)) return res.status(400).send({ status: false, msg: "tags text is invalid" });
 
         // in this blog of code we are checking that subcategory should be valid, u can't use empty space as subcategory
         if (check(subcategory)) return res.status(400).send({ status: false, msg: "subcategory text is invalid" });
 
-        //check if Category is present or not ?
-        if (!category) {
-            return res.status(400).send({ status: false, msg: "Please Enter the Category of Blog" });
-        }
-        // check it is valid category or not? (using regular expression)
-        if (!regEx.test(category)) {
-            return res.status(400).send({ status: false, msg: "category text is invalid" });
-        }
-        //check if isDeleted is TRUE/FALSE ?
-        if (isDeleted && (!(typeof isDeleted === "boolean"))) {
-            return res.status(400).send({ status: false, msg: "isDeleted Must be TRUE OR FALSE" });
-        }
-        // if isDeleted is true add the current Time&Date in deletedAt?
-        if (isDeleted) {
-            blogsData.deletedAt = new Date()
-        }
-        //check if isPublished is TRUE/FALSE ?
-        if (isPublished && (!(typeof isPublished === "boolean"))) {
-            return res.status(400).send({ status: false, msg: "isPublished Must be TRUE OR FALSE" });
-        }
-        // if isPublised is true add the current Time&Date in publishedAt?
-        if (isPublished) {
-            blogsData.publishedAt = new Date()
-        }
+        //check if id is present in Db or Not ? 
+        let user = await authorModel.findById(authorId)
+        if (!user) return res.status(404).send({ status: false, msg: "This Id is not present in Author DB" })
+
         //add the data in DB if all validation passed
         let data = await blogModel.create(blogsData)
         return res.status(201).send({ status: true, data: data })
@@ -106,8 +107,8 @@ exports.getBlogs = async function (req, res) {
         if (Object.keys(req.query).length !== 0) {
 
             //check if id inquery is valid or not
-            if(!ObjectId.isValid(authorId)){
-                return res.status(400).send({status:false,msg:"invalid authorId in query params"})
+            if (!ObjectId.isValid(authorId)) {
+                return res.status(400).send({ status: false, msg: "invalid authorId in query params" })
             }
 
             //add the keyisDeleted &isPublished in req.query
@@ -141,10 +142,23 @@ exports.updateBlogs = async function (req, res) {
         let data = req.body;
         let { title, body, authorId, tags, category, subcategory, isDeleted, deletedAt, isPublished, publishedAt } = req.body;
 
+        //check if the data in request body is present or not ?
+        if (!Object.keys(blogsData).length) {
+            return res.status(400).send({ status: false, msg: "Please Enter the Data in Request Body" });
+        }
+
         //check the author Id is Valid or Not ?
         if (!ObjectId.isValid(blogId)) {
             return res.status(400).send({ status: false, msg: "Id is Invalid" });
         }
+        //check if isDeleated Status is True
+        if (blog.isDeleted) return res.status(404).send({ status: false, msg: "Blog is Already Deleted" })
+
+        //check if isPublished is TRUE/FALSE ?
+        if (isPublished && (!(typeof isPublished === "boolean"))) {
+            return res.status(400).send({ status: false, msg: "isPublished Must be TRUE OR FALSE" });
+        }
+
         //check if isDeleted is TRUE/FALSE ?
         if (isDeleted && (!(typeof isDeleted === "boolean"))) {
             return res.status(400).send({ status: false, msg: "isDeleted Must be TRUE OR FALSE" });
@@ -153,8 +167,7 @@ exports.updateBlogs = async function (req, res) {
         let blog = await blogModel.findById(blogId)
         if (!blog) return res.status(404).send({ status: false, msg: "id is not present in DB" })
 
-        //check if isDeleated Status is True
-        if (blog.isDeleted) return res.status(404).send({ status: false, msg: "Blog is Already Deleted" })
+
 
         //check if body is empty or not ?
         if (!Object.keys(data).length) {
@@ -176,11 +189,7 @@ exports.updateBlogs = async function (req, res) {
         // in this blog of code we are checking that subcategory should be valid, u can't use empty space as subcategory
         if (check(subcategory)) return res.status(400).send({ status: false, msg: "subcategory text is invalid" });
 
-       
-        //check if isPublished is TRUE/FALSE ?
-        if (isPublished && (!(typeof isPublished === "boolean"))) {
-            return res.status(400).send({ status: false, msg: "isPublished Must be TRUE OR FALSE" });
-        }
+
 
         //check ifPublished is true or not   
         if (data.isPublished === true) {
@@ -191,7 +200,7 @@ exports.updateBlogs = async function (req, res) {
         delete data.subcategory
 
         //let updateData = await blogModel.findByIdAndUpdate(blogId, data, { new: true })
-        let updateData =await blogModel.findByIdAndUpdate(blogId,{$set:data,$push:{tags:tags,subcategory:subcategory}},{new:true})
+        let updateData = await blogModel.findByIdAndUpdate(blogId, { $set: data, $push: { tags: tags, subcategory: subcategory } }, { new: true })
 
         return res.status(200).send({ status: true, data: updateData });
     }
@@ -218,7 +227,6 @@ exports.deletedBlog = async function (req, res) {
         return res.status(500).send({ status: false, msg: error.message })
     }
 };
-
 
 exports.deleteBlogWithQuery = async function (req, res) {
     try {

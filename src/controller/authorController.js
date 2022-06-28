@@ -21,10 +21,10 @@ authorLogin = async function (req, res) {
     try {
 
         //get email and password  from req.body
-        let { email, password } = req.body;
+        let { email, password } = req.body;//{}
 
         //check if the data in request body is present or not ?
-        if (!Object.keys(req.body).length) {
+        if (!Object.keys(req.body).length) {   //           ->!0
             return res.status(400).send({ status: false, msg: "Please Enter the email and password in Request Body" });
         }
 
@@ -41,7 +41,7 @@ authorLogin = async function (req, res) {
         // find the object as per email & password
         let author = await authorModel.findOne({ email: email, password: password });
 
-        if (!author) return res.status(400).send({ status: false, msg: "email or password is not corerct", });
+        if (!author) return res.status(401).send({ status: false, msg: "email or password is not corerct", });
 
         //create the Token 
         let token = jwt.sign(
